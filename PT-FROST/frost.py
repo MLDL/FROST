@@ -24,7 +24,7 @@ parser.add_argument('--wresnet-k', default=2, type=int, help='width factor of wi
 parser.add_argument('--wresnet-n', default=28, type=int, help='depth of wide resnet')
 parser.add_argument('--n-classes', type=int, default=10, help='number of classes in dataset')
 parser.add_argument('--n-labeled', type=int, default=10, help='number of labeled samples for training')
-parser.add_argument('--n-epochs', type=int, default=128, help='number of training epochs')
+parser.add_argument('--n-epochs', type=int, default=256, help='number of training epochs')
 parser.add_argument('--batchsize', type=int, default=64, help='train batch size of labeled samples')
 parser.add_argument('--mu', type=int, default=7, help='factor of train batch size of unlabeled samples')
 parser.add_argument('--mu-c', type=int, default=1, help='factor of train batch size of contrastive learing samples')
