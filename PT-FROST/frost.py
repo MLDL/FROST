@@ -43,6 +43,7 @@ parser.add_argument('--temperature', default=0.5, type=float, help='Temperature 
 parser.add_argument('--k', default=200, type=int, help='Top k most similar images used to predict the label')
 parser.add_argument('--test', default=0, type=int, help='0 is softmax test function, 1 is similarity test function')
 parser.add_argument('--bootstrap', type=int, default=8, help='Bootstrapping factor (default=8)')
+parser.add_argument('--boot-schedule', type=int, default=1, help='Bootstrapping schedule (default=1)')
 parser.add_argument('--balance', type=int, default=0, help='Balance class methods to use (default=0 None)')
 parser.add_argument('--delT', type=float, default=0.2, help='Class balance threshold delta (default=0.2)')
 args = parser.parse_args()
@@ -266,35 +267,42 @@ def sort_unlabeled(ema,numPerClass):
     ema.apply_shadow()
     ema.model.eval()
     ema.model.cuda()
-    n_imgs = 2500
-
-    _, _, dltrain_all = get_train_loader(args.n_classes, 1, n_imgs, 1, L=args.n_labeled, seed=args.seed)
-
+    n_iters_per_epoch = args.n_imgs_per_epoch // args.batchsize
+    _, _, dltrain_all = get_train_loader(args.batchsize, 1, 1, n_iters_per_epoch, L=args.n_classes*numPerClass, seed=args.seed)
+    predicted = []
+    labels = []
     for ims_w, _, _, _, lbs in  dltrain_all:
         ims = ims_w.cuda()
+        labels.append(lbs)
         with torch.no_grad():
             logits, _, _  = ema.model(ims)
             scores = torch.softmax(logits, dim=1)
-            predictions , preds = torch.max(scores, dim=1)
-            top = torch.argsort(predictions, descending=True).cpu()
-
-    preds = preds.cpu()
-    predictions = predictions.cpu()
+            predicted.append(scores.cpu())
+    print( "labels ",len(labels))
+    labels = np.concatenate(labels, axis=0)
+    print( "labels ",len(labels))
+    predicted = np.concatenate( predicted, axis=0)
+    preds = predicted.argmax(1)
+    probs = predicted.max(1)
+    top = np.argsort(-probs,axis=0)
+                        
     del dltrain_all, logits
-
     labeledSize =args.n_classes * numPerClass
-    sortByClass = np.zeros([args.n_classes, numPerClass], dtype=int)
+
+    unique_train_pseudo_labels, unique_train_counts = np.unique(preds, return_counts=True)
+    print("Number of training pseudo-labels in each class: ", unique_train_counts," for classes: ", unique_train_pseudo_labels)
+    sortByClass = np.random.randint(0,high=len(top), size=(args.n_classes, numPerClass), dtype=int)
     indx = np.zeros([args.n_classes], dtype=int)
     matches = np.zeros([args.n_classes, numPerClass], dtype=int)
-    labels  = preds[top]
+    labls  = preds[top]
     samples = top
 
     for i in range(len(top)):
-        if indx[labels[i]] < numPerClass:
-            sortByClass[labels[i], indx[labels[i]]] = samples[i]
-            if labels[i] == lbs[top[i]]:
-                matches[labels[i], indx[labels[i]]] = 1
-            indx[labels[i]] += 1
+        if indx[labls[i]] < numPerClass:
+            sortByClass[labls[i], indx[labls[i]]] = samples[i]
+            if labls[i] == labels[top[i]]:
+                matches[labls[i], indx[labls[i]]] = 1
+            indx[labls[i]] += 1
     if min(indx) < numPerClass:
         print("Counts of at least one class ", indx, " is lower than ", numPerClass)
 
@@ -340,15 +348,24 @@ def train():
         dltrain_all=dltrain_all,
         lb_guessor=lb_guessor,
     )
-    
-    n_labeled = 1
+    n_labeled = int(args.n_labeled / args.n_classes)
     best_acc, top1 = -1, -1
     results = {'top 1 acc': [], 'best_acc': []}
+    
+    b_schedule = [args.n_epochs/2, 3*args.n_epochs/4]
+    if args.boot_schedule == 1:
+        step = int(args.n_epochs/3)
+        b_schedule = [step, 2*step]
+    elif args.boot_schedule == 2:
+        step = int(args.n_epochs/4)
+        b_schedule = [step, 2*step, 3*step]
+        
     for e in range(args.n_epochs):
-        if args.bootstrap > 1 and (e == args.n_epochs//2 or e == ((3*args.n_epochs)//4)):
+        if args.bootstrap > 1 and (e in b_schedule):
             seed = 99
             n_labeled *= args.bootstrap
             name = sort_unlabeled(ema, n_labeled)
+            print("Bootstrap at epoch ", e," Name = ",name)
             dltrain_x, dltrain_u, dltrain_all = get_train_loader(args.batchsize, args.mu, args.mu_c, n_iters_per_epoch, 
                                                                  L=10*n_labeled, seed=seed, name=name)
             train_args = dict(
