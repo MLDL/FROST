@@ -1,8 +1,7 @@
 # FROST
 
-Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training" by Helena E. Liu and Leslie N. Smith
+TensorFlow Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training" by Helena E. Liu and Leslie N. Smith.
 
-![FROST comparisons](images/teaser.png?raw=true "FROST comparisions")
 
 ## Setup
 
@@ -179,13 +178,3 @@ You can now run the `create_datasets` script to obtain a tf record for it.
 the created splits for your dataset. You will need to specify the corresponding variables if your dataset 
 has a different # of classes than 10 and different resolution and # of channels than 32x32x3
 5. In `libml/augment.py` add your dataset to the `DEFAULT_AUGMENT` variable. Primitives "s", "m", "ms" represent mirror, shift and mirror+shift. 
-
-## Citing this work
-
-```bibtex
-@article{liu2020frost,
-    title={FROST: Faster and more Robust One-shot Semi-supervised Training},
-    author={Helena E. Liu and Leslie N. Smith},
-    year={2020},
-}
-```

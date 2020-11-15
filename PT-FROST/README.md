@@ -1,6 +1,9 @@
 
 # FROST
 
+PyTorch Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training" by Helena E. Liu and Leslie N. Smith.
+
+
 ## Dataset
 ### Before training, download cifar-10 dataset: 
 
