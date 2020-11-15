@@ -1,5 +1,5 @@
 # Copyright 2019 Google LLC
-# Modified 2020 US Naval Research Laboratory
+# Modified 2020 by authors of BOSS paper
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

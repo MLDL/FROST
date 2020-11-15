@@ -1,6 +1,6 @@
 # FROST
 
-Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training" by Helena E. Liu and Leslie N. Smith.
+Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training".
 
 ![FROST comparisons](TF-FROST/images/teaser.png?raw=true "FROST comparisions")
 
@@ -10,9 +10,9 @@ This repository contains two sets of codes: one for the PyTorch version that is 
 ## Citing this work
 
 ```bibtex
-@article{liu2020frost,
-    title={FROST: Faster and more Robust One-shot Semi-supervised Training},
-    author={Helena E. Liu and Leslie N. Smith},
-    year={2020},
-}
+```@article{liu2020frost,
+```    title={FROST: Faster and more Robust One-shot Semi-supervised Training},
+```    author={},
+```    year={2020},
+```}
 ```

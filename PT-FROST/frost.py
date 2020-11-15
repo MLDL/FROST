@@ -42,7 +42,7 @@ parser.add_argument('--feature_dim', default=128, type=int, help='Feature dim fo
 parser.add_argument('--temperature', default=0.5, type=float, help='Temperature used in softmax')
 parser.add_argument('--k', default=200, type=int, help='Top k most similar images used to predict the label')
 parser.add_argument('--test', default=0, type=int, help='0 is softmax test function, 1 is similarity test function')
-parser.add_argument('--bootstrap', type=int, default=8, help='Bootstrapping factor (default=8)')
+parser.add_argument('--bootstrap', type=int, default=16, help='Bootstrapping factor (default=16)')
 parser.add_argument('--boot-schedule', type=int, default=1, help='Bootstrapping schedule (default=1)')
 parser.add_argument('--balance', type=int, default=0, help='Balance class methods to use (default=0 None)')
 parser.add_argument('--delT', type=float, default=0.2, help='Class balance threshold delta (default=0.2)')

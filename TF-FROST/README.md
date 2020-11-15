@@ -1,6 +1,6 @@
 # FROST
 
-TensorFlow Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training" by Helena E. Liu and Leslie N. Smith.
+TensorFlow Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training".
 
 
 ## Setup
