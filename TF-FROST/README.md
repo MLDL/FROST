@@ -84,7 +84,7 @@ export PYTHONPATH=$PYTHONPATH:$PWD
 CUDA_VISIBLE_DEVICES=0 python frost.py --filters=32 --dataset=cifar10.3@10-1 --train_dir ./experiments/frost
 ```
 
-A more complete example specifying the most important input flages:
+A more complete example specifying the most important input flags:
 
 ```bash
 export ML_DATA="./data"
