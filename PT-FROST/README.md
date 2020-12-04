@@ -1,7 +1,7 @@
 
 # FROST
 
-PyTorch Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training".
+PyTorch Code for FROST.
 
 
 ## Dataset
