@@ -1,5 +1,5 @@
 # Copyright 2019 Google LLC
-# Modified 2020 by authors of FROST paper
+# Modified 2020, FROST
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -237,6 +237,11 @@ class CreateSplit():
     def get_class(self, serialized_example):
         return tf.parse_single_example(serialized_example, features={'label': tf.FixedLenFeature([], tf.int64)})['label']
 
+    def _bytes_feature(self, value):
+        return tf.train.Feature(bytes_list=tf.train.BytesList(value=[value]))
+    def _int64_feature(self, value):
+        return tf.train.Feature(int64_list=tf.train.Int64List(value=[value]))
+
     def create_split(self, datasetName, seed, size):
         input_file=data.DATA_DIR+'/'+datasetName+'-train.tfrecord'
         target = ('%s/%s/%s.%d@%d' % (data.DATA_DIR, FLAGS.data_subfolder, datasetName, seed, size) )
@@ -273,15 +278,17 @@ class CreateSplit():
 
         # Distribute labels to match the input distribution.
         train_data = np.load(target + ".npy")
-        label = []
+        samples = []
+        pseudo_labels = []
         for i in range(size):
             c = i%nclass
             npos = i//nclass
-            label.append(train_data[c][npos])
-#            print("class ", c, " pos ", npos, " train_data ", train_data[c][npos])
+            pseudo_labels.append(c)
+            samples.append(train_data[c][npos])
+#            print("Label ",id_class[train_data[c][npos]]," Pseudo-label ", c, " Top confidence ", npos, " train_data ", train_data[c][npos])
 
         del train_data
-        label = frozenset([int(x) for x in label])
+        label = frozenset([int(x) for x in samples])
 
         if 'stl10' in self.train_dir and size == 1000:
             train_data = tf.gfile.Open(os.path.join(data.DATA_DIR, 'stl10_fold_indices.txt'), 'r').read()
@@ -291,10 +298,13 @@ class CreateSplit():
         tf.gfile.MakeDirs(os.path.dirname(target))
         with tf.python_io.TFRecordWriter(target + '-label.tfrecord') as writer_label:
             pos, loop = 0, trange(count, desc='Writing records')
-            #for infile in input_file:
             for record in tf.python_io.tf_record_iterator(input_file):
                 if pos in label:
-                    writer_label.write(record)
+                    pseudo_label = pseudo_labels[samples.index(pos)]
+                    feat = dict(image=self._bytes_feature(tf.train.Example.FromString(record).features.feature['image'].bytes_list.value[0]),
+                                label=self._int64_feature(pseudo_label))
+                    newrecord = tf.train.Example(features=tf.train.Features(feature=feat))
+                    writer_label.write(newrecord.SerializeToString())
                 pos += 1
                 loop.update()
             loop.close()

@@ -1,6 +1,6 @@
 # FROST
 
-TensorFlow Code for the paper: "FROST: Faster and more Robust One-shot Semi-supervised Training".
+TensorFlow Code for FROST.
 
 
 ## Setup
