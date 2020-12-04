@@ -43,16 +43,19 @@ def load_data_train(L=10, dspth='./dataset', seed=0, name=None):
         inds_x, inds_u, inds_all = indices[:n_labels], indices[n_labels:], indices   
         if seed >= 0:
             label_x += [labels[i] for i in inds_x]
+            data_x += [
+                data[i].reshape(3, 32, 32).transpose(1, 2, 0)
+                for i in inds_x
+            ]
             for j in range(n_labels):
                 inds_x[j] = indices_x[i][j]
+                
         data_x += [
             data[i].reshape(3, 32, 32).transpose(1, 2, 0)
             for i in inds_x
         ]
-        #label_x += [labels[i] for i in inds_x]
         if seed >= 0:
             label_x += [i] * len(inds_x)
-            #label_x += [i] * len(inds_x)
         else:
             label_x += [labels[j] for j in inds_x]
         data_u += [
